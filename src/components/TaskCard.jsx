@@ -288,7 +288,7 @@ const TaskCard = ({ task, onComplete, onUndo, onEdit, isActive, t, language }) =
       <motion.div
         animate={cardControls}
         className={cn(
-          "relative w-full max-w-[400px] h-[75%] -mt-30 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col justify-between p-8 backdrop-blur-xl transition-all duration-500 border",
+          "relative w-full max-w-[400px] h-[65%] -mt-30 rounded-[2.5rem] overflow-hidden shadow-2xl flex flex-col justify-between p-8 backdrop-blur-xl transition-all duration-500 border",
           getGradient(),
           isActive 
             ? cn(

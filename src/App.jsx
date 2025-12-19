@@ -425,7 +425,7 @@ function App() {
             >
               {/* Header - Cognitive Load: Fades on Focus Mode */}
               <motion.div 
-                className="shrink-0 pt-12 pb-4 px-6 z-40 flex justify-between items-center bg-gradient-to-b from-black/95 via-black/50 to-transparent sticky top-0"
+                className="shrink-0 pt-4 pb-4 px-6 z-40 flex justify-between items-center bg-gradient-to-b from-black/95 via-black/50 to-transparent sticky top-0"
                 animate={{
                   opacity: isFocusMode ? 0.3 : 1,
                   filter: isFocusMode ? 'blur(4px)' : 'blur(0px)',
