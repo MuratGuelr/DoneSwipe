@@ -1,4 +1,4 @@
-import React, { useState, useEffect, useCallback } from 'react';
+import React, { useState, useEffect, useCallback, Suspense, lazy } from 'react';
 import { Toaster, toast } from 'react-hot-toast';
 import { motion, AnimatePresence } from 'framer-motion';
 import { signInWithPopup, onAuthStateChanged, signOut } from 'firebase/auth';
@@ -17,11 +17,12 @@ import {
 } from 'firebase/firestore';
 import { auth, googleProvider, db } from './firebase';
 import TaskFeed from './components/TaskFeed.jsx';
-import AddTaskModal from './components/AddTaskModal';
-import SettingsModal from './components/SettingsModal';
-import ConfirmationModal from './components/ConfirmationModal';
 import { ListTodo, LogIn, User, ArrowUpDown, Flame, Zap, Sparkles } from 'lucide-react';
 import { locales } from './locales';
+
+const AddTaskModal = lazy(() => import('./components/AddTaskModal'));
+const SettingsModal = lazy(() => import('./components/SettingsModal'));
+const ConfirmationModal = lazy(() => import('./components/ConfirmationModal'));
 
 /**
  * DoneSwipe - App Component
@@ -516,7 +517,8 @@ function App() {
                 />
               </div>
 
-              {/* Add/Edit Task Modal */}
+            {/* Add/Edit Task Modal */}
+            <Suspense fallback={null}>
               <AddTaskModal 
                 onAddTask={handleAddTask} 
                 onUpdateTask={handleUpdateTask}
@@ -525,8 +527,10 @@ function App() {
                 onDelete={requestDeleteTask}
                 t={t} 
               />
+            </Suspense>
 
               {/* Confirmation Modal */}
+            <Suspense fallback={null}>
               <ConfirmationModal 
                 isOpen={isDeleteModalOpen}
                 onClose={() => setIsDeleteModalOpen(false)}
@@ -534,6 +538,7 @@ function App() {
                 message={t.deleteConfirmation}
                 t={t}
               />
+            </Suspense>
 
               {/* Visual Gradients for Depth */}
               <div className="absolute top-0 left-0 right-0 h-28 bg-gradient-to-b from-black via-black/50 to-transparent pointer-events-none z-30" />
@@ -544,17 +549,19 @@ function App() {
       </motion.div>
 
       {/* Settings Dialog */}
-      <SettingsModal 
-        isOpen={isSettingsOpen} 
-        onClose={() => setIsSettingsOpen(false)} 
-        user={user}
-        userStats={userStats}
-        language={language}
-        setLanguage={setLanguage}
-        logout={handleLogout}
-        t={t}
-        stats={{ total: totalTasks, completed: completedTasks }}
-      />
+      <Suspense fallback={null}>
+        <SettingsModal 
+          isOpen={isSettingsOpen} 
+          onClose={() => setIsSettingsOpen(false)} 
+          user={user}
+          userStats={userStats}
+          language={language}
+          setLanguage={setLanguage}
+          logout={handleLogout}
+          t={t}
+          stats={{ total: totalTasks, completed: completedTasks }}
+        />
+      </Suspense>
     
       {/* Toast Container */}
       <Toaster 

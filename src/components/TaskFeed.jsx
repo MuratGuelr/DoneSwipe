@@ -143,7 +143,6 @@ const TaskFeed = ({ tasks, onTaskComplete, onUndo, onEdit, onDelete, t, language
   // Aktif index takibi ve Focus Mode
   useMotionValueEvent(scrollYProgress, "change", (latest) => {
     // Progress (0..1) -> Index (0..Total + 1 for clear finish)
-    // Fix: Allow going one step further to clear the last card
     const maxIndex = tasks.length;
     const rawIndex = latest * maxIndex;
     const index = Math.min(Math.round(rawIndex), tasks.length - 1);
@@ -161,15 +160,10 @@ const TaskFeed = ({ tasks, onTaskComplete, onUndo, onEdit, onDelete, t, language
   const uncompletedCount = uncompletedTasks.length;
   
   // Aktif indexteki görev tamamlanmış mı?
-  // Listemiz zaten sıralı (tamamlanmamışlar üstte), bu yüzden activeIndex
-  // eğer uncompletedCount'tan küçükse, o anki sırayı gösterir.
   const isViewingCompleted = activeIndex >= uncompletedCount;
   
   // Görev tamamlandığında
   const handleComplete = useCallback((taskId) => {
-    // Scroll yapma! Çünkü liste yeniden sıralanacak ve sıradaki görev
-    // otomatik olarak index 0'a (veya mevcut indexe) gelecek.
-    // Sadece veri tabanını güncelle.
     onTaskComplete(taskId);
   }, [onTaskComplete]);
 
@@ -177,7 +171,14 @@ const TaskFeed = ({ tasks, onTaskComplete, onUndo, onEdit, onDelete, t, language
     ? Math.round(((Math.min(activeIndex + 1, uncompletedCount)) / uncompletedCount) * 100) 
     : 100;
 
-  // Render
+  // Virtualization / Windowing Logic
+  // Only render cards around the active index to save resources
+  // Render: active - 1, active, active + 1, active + 2 (buffer)
+  const visibleRange = {
+    start: Math.max(0, activeIndex - 1),
+    end: Math.min(tasks.length - 1, activeIndex + 2)
+  };
+
   return (
     <div className="relative w-full h-full overflow-hidden" style={{ perspective: '1000px' }}>
       
@@ -213,19 +214,19 @@ const TaskFeed = ({ tasks, onTaskComplete, onUndo, onEdit, onDelete, t, language
       >
         <div 
           className="relative w-full"
-          style={{ height: `${(tasks.length + 1) * 100}vh` }} // +1 Page for "All Caught Up"
+          style={{ height: `${(tasks.length + 1) * 100}dvh` }} // +1 Page for "All Caught Up" using dvh for mobile
         >
           {/* Ghost Snap Targets including final page */}
           {Array.from({ length: tasks.length + 1 }).map((_, i) => (
             <div 
               key={`snap-${i}`} 
-              className="absolute w-full h-screen snap-start pointer-events-none" 
-              style={{ top: `${i * 100}vh` }} 
+              className="absolute w-full h-[100dvh] snap-start pointer-events-none" 
+              style={{ top: `${i * 100}dvh` }} 
             />
           ))}
 
           {/* Görünür Sahne (Sticky) */}
-          <div className="sticky top-0 w-full h-screen overflow-hidden flex items-center justify-center">
+          <div className="sticky top-0 w-full h-[100dvh] overflow-hidden flex items-center justify-center">
             
             {/* Empty State */}
             {tasks.length === 0 && (
@@ -235,24 +236,30 @@ const TaskFeed = ({ tasks, onTaskComplete, onUndo, onEdit, onDelete, t, language
               </div>
             )}
 
-            {/* Cards Stack */}
+            {/* Cards Stack - Virtualized */}
             <AnimatePresence mode="popLayout">
-              {tasks.map((task, i) => (
-                <StackedCard
-                  key={task.id}
-                  task={task}
-                  index={i}
-                  total={tasks.length} // Pass full length for calculation
-                  scrollYProgress={scrollYProgress}
-                  activeIndex={activeIndex}
-                  onComplete={handleComplete}
-                  onUndo={onUndo}
-                  onEdit={onEdit}
-                  onDelete={onDelete}
-                  t={t}
-                  language={language}
-                />
-              ))}
+              {tasks.map((task, i) => {
+                // Only render if within potentially visible range
+                // We keep the map to maintain index, but return null if out of range
+                if (i < visibleRange.start || i > visibleRange.end) return null;
+
+                return (
+                  <StackedCard
+                    key={task.id}
+                    task={task}
+                    index={i}
+                    total={tasks.length} 
+                    scrollYProgress={scrollYProgress}
+                    activeIndex={activeIndex}
+                    onComplete={handleComplete}
+                    onUndo={onUndo}
+                    onEdit={onEdit}
+                    onDelete={onDelete}
+                    t={t}
+                    language={language}
+                  />
+                );
+              })}
             </AnimatePresence>
 
             {/* Scroll Hint */}

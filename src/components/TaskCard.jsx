@@ -323,26 +323,26 @@ const TaskCard = ({ task, onComplete, onUndo, onEdit, isActive, t, language }) =
         </div>
 
         {/* Content - Centered (Tunnel Vision Focus) */}
-        <div className="z-10 flex flex-col items-center text-center justify-start pt-20 w-full gap-6 px-2 h-full">
+        <div className="z-10 flex flex-col items-center text-center justify-start pt-10 md:pt-20 w-full gap-3 md:gap-6 px-2 h-full overflow-y-auto no-scrollbar">
           <motion.div
             initial={{ scale: 0.9, opacity: 0 }}
             animate={{ scale: 1, opacity: 1 }}
-            className="flex flex-col items-center space-y-4"
+            className="flex flex-col items-center space-y-2 md:space-y-4 shrink-0"
           >
             {/* Category - Subtle (Cognitive Load Reduction) */}
-            <span className="text-xs font-bold tracking-[0.4em] text-zinc-500 uppercase">
+            <span className="text-[10px] md:text-xs font-bold tracking-[0.4em] text-zinc-500 uppercase">
               {t?.categories?.[task.category] || task.category}
             </span>
             
             {/* Title - Hero Text (Tunnel Vision: Single Focus Point) */}
-            <h2 className="text-4xl md:text-5xl font-black leading-tight tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-zinc-400 drop-shadow-sm">
+            <h2 className="text-3xl md:text-5xl font-black leading-tight tracking-tighter bg-clip-text text-transparent bg-gradient-to-br from-white via-white to-zinc-400 drop-shadow-sm">
               {task.title}
             </h2>
           </motion.div>
 
           {/* Description */}
           {task.description && (
-            <p className="text-base text-zinc-400 font-medium max-w-[300px] leading-relaxed line-clamp-3">
+            <p className="text-sm md:text-base text-zinc-400 font-medium max-w-[300px] leading-relaxed line-clamp-3 md:line-clamp-4 shrink-0">
               {task.description}
             </p>
           )}
@@ -355,17 +355,17 @@ const TaskCard = ({ task, onComplete, onUndo, onEdit, isActive, t, language }) =
                 animate={{ opacity: 1, y: 0 }} 
                 exit={{ opacity: 0, y: -10 }}
                 transition={{ delay: 0.1 }}
-                className="flex items-center justify-center gap-3 w-full pt-2"
+                className="flex items-center justify-center gap-3 w-full pt-1 md:pt-2 shrink-0"
               >
                 {task.duration && (
-                  <span className="flex items-center gap-2 bg-indigo-500/15 border border-indigo-500/25 px-4 py-2.5 rounded-2xl text-xs font-bold text-indigo-300 touch-target">
-                    <Clock size={14} className="text-indigo-400" /> 
+                  <span className="flex items-center gap-2 bg-indigo-500/15 border border-indigo-500/25 px-3 py-2 md:px-4 md:py-2.5 rounded-2xl text-xs font-bold text-indigo-300 touch-target">
+                    <Clock size={12} className="md:w-3.5 md:h-3.5 text-indigo-400" /> 
                     <span className="tracking-wide">{task.duration} {t.min}</span>
                   </span>
                 )}
                 {task.dueDate && (
-                  <span className="flex items-center gap-2 bg-cyan-500/15 border border-cyan-500/25 px-4 py-2.5 rounded-2xl text-xs font-bold text-cyan-300 touch-target">
-                    <Calendar size={14} className="text-cyan-400" /> 
+                  <span className="flex items-center gap-2 bg-cyan-500/15 border border-cyan-500/25 px-3 py-2 md:px-4 md:py-2.5 rounded-2xl text-xs font-bold text-cyan-300 touch-target">
+                    <Calendar size={12} className="md:w-3.5 md:h-3.5 text-cyan-400" /> 
                     <span className="tracking-wide">
                       {new Date(task.dueDate).toLocaleDateString(
                         language === 'tr' ? 'tr-TR' : 'en-US', 
